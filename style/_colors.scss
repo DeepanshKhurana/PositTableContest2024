@@ -1,0 +1,48 @@
+$subtitle-grey: #878787;
+$down-red-text: #a50e0e;
+$down-red-highlight: #fce8e6;
+$up-green-text: #3a5a40;
+$up-green-highlight: #e0f0df;
+$no-change-grey-text: black;
+$no-change-grey-highlight: #f1f3f4;
+$header-text: #878787;
+$header-quote: lightgrey;
+$stock-name: #a2a2a2;
+$stock-code: darkslategrey;
+$stock-icon: slategrey;
+
+.red-background {
+  background: $down-red-highlight !important;
+}
+
+.green-background {
+  background: $up-green-highlight !important;
+}
+
+.grey-background {
+  background: $no-change-grey-highlight !important;
+}
+
+.red {
+  color: $down-red-text !important;
+}
+
+.green {
+  color: $up-green-text !important;
+}
+
+.grey {
+  color: $no-change-grey-text !important;
+}
+
+.light-red {
+  color: $down-red-highlight !important;
+}
+
+.light-green {
+  color: $up-green-highlight !important;
+}
+
+.light-grey {
+  color: $no-change-grey-highlight !important;
+}

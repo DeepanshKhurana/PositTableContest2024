@@ -1,0 +1,149 @@
+---
+title: "Tables for Personal Finance"
+author: "Deepansh Khurana"
+format:
+  html:
+    code-fold: true
+theme:
+  - cosmo
+  - style/custom.scss
+editor: visual
+---
+
+::: {style="text-align: justify;"}
+When I made the [Hrafnagud](https://github.com/DeepanshKhurana/Hrafnagud-Dynamo "Hrafnagud-Dynamo") project I recently talked about at ShinyConf (and am about to talk about at useR! in July), I also made several apps for myself to consume each API. The app and API for tracking my finances is called **Ebenezer**, named after the miserly Scrooge. My goal was to take each kind of financial instrument and make a table that fits well for it. Bonds work differently than Equity stocks, for example, and therefore, should be represented differently. The result was the following tables, which are now a part and parcel of my application.
+:::
+
+## Setup
+
+Here we setup some libraries, functions and load the dataframes for these examples.
+
+```{r "setup"}
+
+library(reactable)
+library(reactablefmtr)
+library(shiny)
+
+source("utils/data_formatting.R")
+
+files <- list.files("data", "*.csv")
+paths <- paste("data", files, sep = "/")
+data <- lapply(
+  paths,
+  read.csv
+)
+
+names(data) <- gsub(".csv", "", files)
+```
+
+Now that the data is loaded, we can take each table at a time.
+
+### Ticker
+
+::: {style="text-align: justify;"}
+The ticker is a simple table that needs a few key pieces of information. The most important out of which is the correct semantic colour for rise and fall of a stock.
+
+**Note:** While I usually consume this data from a custom API, for the sake of illustration and reproducibility, I have included a static file here as a .csv.
+
+Let's try to make a Ticker Table.
+:::
+
+```{r "ticker"}
+
+ticker_data <- data$ticker_data
+
+colnames(ticker_data) <- c(
+  "Code", "Stock", "Price", "Change", "Percent"
+)
+
+ticker_data$Stock <- paste(
+  ticker_data$Code,
+  ticker_data$Stock,
+  sep = "_"
+)
+
+ticker_data$Price <-
+  paste(ticker_data$Price,
+    ticker_data$Change,
+    ticker_data$Percent,
+    sep = "_"
+  )
+
+ticker_data <- ticker_data[, c("Stock", "Price")] |>
+  na.omit()
+
+reactable(
+  data = ticker_data,
+  pagination = FALSE,
+  sortable = FALSE,
+  searchable = TRUE,
+  columns = list(
+    Stock = colDef(
+      align = "left",
+      cell = function(value) {
+        value <- strsplit(value, "_")[[1]]
+        div(
+          class = "stock-name-row",
+          div(
+            class = "stock-code",
+            value[1]
+          ),
+          div(
+            class = "stock-name",
+            value[2]
+          )
+        )
+      }
+    ),
+    Price = colDef(
+      align = "right",
+      cell = function(value) {
+        value <- strsplit(value, "_")[[1]]
+
+        price <- as.numeric(value[1])
+        change <- as.numeric(value[2])
+        percent <- as.numeric(value[3])
+
+        indicator <- get_css_class(change, type = "all")
+
+        div(
+          class = "stock-price-row",
+          div(
+            class = "stock-price",
+            style = list(
+              fontSize = "1.5em",
+              fontWeight = 600
+            ),
+            paste0(
+              "$",
+              sub(
+                "\\.0+$",
+                "",
+                format_price(price)
+              )
+            )
+          ),
+          div(
+            class = "stock-change-block",
+            div(
+              class = paste("stock-percent",
+                indicator$text,
+                indicator$highlight,
+                sep = " "
+              ),
+              paste0(sub("-", "", preserve_zero(percent)), "%")
+            ),
+            div(
+              class = paste("stock-change",
+                indicator$text,
+                sep = " "
+              ),
+              sub("-", "", format_price(change))
+            )
+          ),
+        )
+      }
+    )
+  )
+)
+```
