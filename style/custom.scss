@@ -13,5 +13,9 @@ h5 {
   font-weight: 600;
 }
 
+.rt-thead {
+  display: none !important;
+}
+
 @import "colors";
 @import "ticker";

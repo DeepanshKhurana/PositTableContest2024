@@ -20,6 +20,7 @@ Here we setup some libraries, functions and load the dataframes for these exampl
 
 ```{r "setup"}
 
+suppressPackageStartupMessages(library(dplyr))
 library(reactable)
 library(reactablefmtr)
 library(shiny)
@@ -141,6 +142,178 @@ reactable(
               sub("-", "", format_price(change))
             )
           ),
+        )
+      }
+    )
+  )
+)
+```
+
+### Stocks
+
+::: {style="text-align: justify;"}
+Alright, now that we have data for the ticker, we can create a stocks table. The table below gives you the portfolio with different fields such as Invested Value, Quantity, Average Price on the left, and Unrealized P&L, Realized P&L, Current Price on the right. If a user hovers on the icons, they will find these labels as well.
+:::
+
+```{r "stocks"}
+
+portfolio <- data$stocks_data |>
+        mutate(
+          unrealized_percent =
+            true_round(
+              unrealized * 100 / holding_value, 2
+            )
+        ) |>
+        mutate(
+          Left =
+            paste(
+              stock_symbol,
+              name,
+              holding_value,
+              quantity,
+              avg_price,
+              sep = "_"
+            ),
+          Right = paste(
+            unrealized,
+            unrealized_percent,
+            realized,
+            current_price,
+            change_percent,
+            sep = "_"
+          )
+        ) |>
+        select(Left, Right)
+
+reactable(
+  data = portfolio,
+  pagination = FALSE,
+  searchable = TRUE,
+  columns = list(
+    Left = colDef(
+      align = "left",
+      cell = function(value) {
+        value <- strsplit(value, "_")[[1]]
+        div(
+          class = "stock-left-area",
+          div(
+            class = "stock-name-row",
+            div(
+              class = "stock-code",
+              value[1]
+            ),
+            div(
+              class = "stock-name",
+              value[2]
+            )
+          ),
+          div(
+            class = "stock-holding-row",
+            div(
+              class = "stock-market-value small-row-left",
+              title = "Invested Value",
+              icon(name = "vault", class = "label"),
+              p(class = "value", format_price(value[3], 2))
+            ),
+            div(
+              class = "stock-quantity small-row-left",
+              title = "Quantity",
+              icon(name = "hashtag", class = "label"),
+              p(class = "value", value[4])
+            ),
+            div(
+              class = "stock-avg-price small-row-left",
+              title = "Average Price",
+              icon(name = "barcode", class = "label"),
+              p(class = "value", paste0("₹", true_round(value[5], 2)))
+            )
+          )
+        )
+      }
+    ),
+    Right = colDef(
+      align = "right",
+      cell = function(value) {
+        value <- strsplit(value, "_")[[1]]
+
+        unrealized_class <- get_css_class(value[2], type = "text")
+        realized_class <- get_css_class(value[3], type = "text")
+        current_price_class <- get_css_class(value[5], type = "text")
+
+        div(
+          class = "stock-right-area",
+          div(
+            class = "stock-unrealized-row small-row-right",
+            title = "Unrealized P&L",
+            icon(
+              name = "money-bill-transfer",
+              class = paste("stock-current-price label",
+                unrealized_class,
+                sep = " "
+              )
+            ),
+            p(
+              class = paste("stock-unrealized value",
+                unrealized_class,
+                sep = " "
+              ),
+              format_price(value[1])
+            ),
+            p(
+              class = paste("stock-unrealized-percent value",
+                unrealized_class,
+                sep = " "
+              ),
+              paste0("(", value[2], "%)")
+            )
+          ),
+          div(
+            class = "stock-realized small-row-right",
+            title = "Realized P&L",
+            icon(
+              name = "receipt",
+              class = paste("stock-current-price label",
+                realized_class,
+                sep = " "
+              )
+            ),
+            p(
+              class = paste("value",
+                realized_class,
+                sep = " "
+              ),
+              format_price(value[3])
+            )
+          ),
+          div(
+            class = "stock-current-price-row small-row-right",
+            title = "Current Price",
+            icon(
+              name = "comment-dollar",
+              class = paste("stock-current-price label",
+                current_price_class,
+                sep = " "
+              )
+            ),
+            div(
+              p(
+                class = paste(
+                  "stock-current-price value",
+                  current_price_class,
+                  sep = " "
+                ),
+                value[4]
+              )
+            ),
+            p(
+              class = paste(
+                "stock-current-price-percent value",
+                current_price_class,
+                sep = " "
+              ),
+              paste0("(", value[5], "%)")
+            )
+          )
         )
       }
     )
