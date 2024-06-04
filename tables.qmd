@@ -14,6 +14,14 @@ editor: visual
 When I made the [Hrafnagud](https://github.com/DeepanshKhurana/Hrafnagud-Dynamo "Hrafnagud-Dynamo") project I recently talked about at ShinyConf (and am about to talk about at useR! in July), I also made several apps for myself to consume each API. The app and API for tracking my finances is called **Ebenezer**, named after the miserly Scrooge. My goal was to take each kind of financial instrument and make a table that fits well for it. Bonds work differently than Equity stocks, for example, and therefore, should be represented differently. The result was the following tables, which are now a part and parcel of my application.
 :::
 
+#### Key Features
+
+::: {style="text-align: justify;"}
+One of the key features of these tables are the way the colors are assigned automatically. This is done using a *get_css_class()* function which basically assigns the different colors and highlights wherever required.
+
+Another important bit is how the tables themselves are constructed. Processing functions are written in the *cell* parameter of the *reactable()* call. The function then takes up a concatenated string and builds up a *div* structure that is styled with a custom scss file.
+:::
+
 ## Setup
 
 Here we setup some libraries, functions and load the dataframes for these examples.
@@ -21,9 +29,10 @@ Here we setup some libraries, functions and load the dataframes for these exampl
 ```{r "setup"}
 
 suppressPackageStartupMessages(library(dplyr))
-library(reactable)
-library(reactablefmtr)
-library(shiny)
+suppressPackageStartupMessages(library(lubridate))
+suppressPackageStartupMessages(library(reactable))
+suppressPackageStartupMessages(library(reactablefmtr))
+suppressPackageStartupMessages(library(shiny))
 
 source("utils/data_formatting.R")
 
@@ -316,6 +325,128 @@ reactable(
           )
         )
       }
+    )
+  )
+)
+```
+
+### Bonds
+
+::: {style="text-align: justify;"}
+Between Stocks and Bonds, something changes. Most stock data is current. You need the most crucial information immediately. With bonds, the information needed is a bit different. You need to know the current amount, the amount it will total to when the time period passes and the progress. So, with the help of *reactablefmtr*, I added a progress bar to the tables.
+
+Another thing to note is that the progress bar color changes according to a palette. This gives the user visual feedback for how far their bonds have progressed to maturity. Darker is "matures soon".
+:::
+
+```{r "bonds"}
+
+bonds <- data$sgb_data
+
+today <- Sys.Date()
+
+bonds$info <- paste(
+  bonds$name,
+  bonds$invested_date,
+  bonds$maturity_date,
+  bonds$category,
+  bonds$quantity,
+  bonds$unit_price,
+  bonds$total,
+  sep = "_"
+)
+
+bonds$progress <-
+  1 - as.numeric(
+    difftime(
+      format_date(bonds$maturity_date),
+      as.Date(today),
+      units = "days"
+    )
+  ) / (8 * 365.25)
+
+bonds <- bonds |>
+  select(info, progress) |>
+  rowwise() |>
+  mutate(
+    color = get_progress_bar_colour(
+      progress,
+      c(
+        "#a3b18a",
+        "#588157",
+        "#3a5a40",
+        "#344e41"
+      )
+    )
+  ) |>
+  ungroup()
+
+reactable(
+  bonds,
+  class = "sgb-reactable",
+  columns = list(
+    info = colDef(
+      name = "Bond",
+      cell = function(string) {
+        string <- strsplit(string, "_")[[1]]
+        div(
+          class = "sgb-row",
+          div(
+            class = "sgb-name",
+            gsub(
+              "BOND NAME",
+              "/",
+              string[1]
+            )
+          ),
+          div(
+            class = "sgb-timeline",
+            year(format_date(string[2])),
+            icon("arrow-right"),
+            year(format_date(string[3]))
+          ),
+          div(
+            class = "sgb-metrics-container",
+            div(
+              class = "sgb-category metric",
+              title = "Category",
+              icon("receipt", class = "label"),
+              p(string[4], class = "value")
+            ),
+            div(
+              class = "sgb-quantity metric",
+              title = "Quantity",
+              icon("hashtag", class = "label"),
+              p(string[5], class = "value")
+            ),
+            div(
+              class = "sgb-price metric",
+              title = "Unit Price",
+              icon("barcode", class = "label"),
+              p(format_price(string[6]), class = "value")
+            ),
+            div(
+              class = "sgb-total metric",
+              title = "Total Invested",
+              icon("vault", class = "label"),
+              p(format_price(string[7]), class = "value")
+            ),
+          )
+        )
+      }
+    ),
+    progress = colDef(
+      cell = data_bars(
+        bonds,
+        max_value = 1,
+        fill_color_ref = "color",
+        background = "#f1f3f4",
+        round_edges = TRUE,
+        bar_height = 20,
+        number_fmt = scales::label_percent()
+      )
+    ),
+    color = colDef(
+      show = FALSE
     )
   )
 )

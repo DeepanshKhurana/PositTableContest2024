@@ -1,0 +1,53 @@
+@import "colors";
+
+.sgb-reactable {
+  .rt-td-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .sgb-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+
+    .sgb-name {
+      font-size: 1.2em;
+      font-weight: 700;
+      color: $stock-code;
+    }
+
+    .sgb-timeline {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: $stock-name;
+    }
+
+    .sgb-metrics-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+
+      .metric {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+
+        i.label {
+          color: $stock-icon;
+          margin: 0;
+        }
+
+        p.value {
+          font-weight: 500;
+          padding-bottom: 0.2em;
+          color: black;
+          margin: 0;
+        }
+      }
+    }
+  }
+}

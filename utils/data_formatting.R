@@ -101,3 +101,19 @@ preserve_zero <- function(value) {
 format_date <- function(date_string) {
   as.Date(date_string, format = "%d/%m/%y")
 }
+
+#' @description Helper function to get the progress bar colour
+#' @param progress_percent The progress percentage
+#' @param palette The palette to use
+#' @export
+get_progress_bar_colour <- function(progress_percent, palette) {
+  if (progress_percent >= 0 && progress_percent < 0.25) {
+    palette[1]
+  } else if (progress_percent >= 0.25 && progress_percent < 0.50) {
+    palette[2]
+  } else if (progress_percent >= 0.50 && progress_percent < 0.75) {
+    palette[3]
+  } else {
+    palette[4]
+  }
+}
