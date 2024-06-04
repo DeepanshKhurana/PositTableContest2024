@@ -12,6 +12,8 @@ editor: visual
 
 ::: {style="text-align: justify;"}
 When I made the [Hrafnagud](https://github.com/DeepanshKhurana/Hrafnagud-Dynamo "Hrafnagud-Dynamo") project I recently talked about at **ShinyConf** (and am about to talk about at **useR!** in July and **EARL** in September), I also made several apps for myself to consume each API. The app and API for tracking my finances is called **Ebenezer**, named after the miserly Scrooge. My goal was to take each kind of financial instrument and make a table that fits well for it. Bonds work differently than Equity stocks, for example, and therefore, should be represented differently. The result was the following tables, which are now a part and parcel of my application.
+
+***Note:** These are design for desktop viewing only for now.*
 :::
 
 #### Key Features
