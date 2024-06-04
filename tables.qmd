@@ -29,6 +29,7 @@ Here we setup some libraries, functions and load the dataframes for these exampl
 ```{r "setup"}
 
 suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(glue))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(reactable))
 suppressPackageStartupMessages(library(reactablefmtr))
@@ -174,7 +175,7 @@ portfolio <- data$stocks_data |>
             )
         ) |>
         mutate(
-          Left =
+          left =
             paste(
               stock_symbol,
               name,
@@ -183,7 +184,7 @@ portfolio <- data$stocks_data |>
               avg_price,
               sep = "_"
             ),
-          Right = paste(
+          right = paste(
             unrealized,
             unrealized_percent,
             realized,
@@ -192,14 +193,14 @@ portfolio <- data$stocks_data |>
             sep = "_"
           )
         ) |>
-        select(Left, Right)
+        select(left, right)
 
 reactable(
   data = portfolio,
   pagination = FALSE,
   searchable = TRUE,
   columns = list(
-    Left = colDef(
+    left = colDef(
       align = "left",
       cell = function(value) {
         value <- strsplit(value, "_")[[1]]
@@ -240,7 +241,7 @@ reactable(
         )
       }
     ),
-    Right = colDef(
+    right = colDef(
       align = "right",
       cell = function(value) {
         value <- strsplit(value, "_")[[1]]
@@ -447,6 +448,292 @@ reactable(
     ),
     color = colDef(
       show = FALSE
+    )
+  )
+)
+```
+
+### Funds
+
+::: {style="text-align: justify;"}
+Funds work similar to the bonds with slight variation. In some ways, they are a mixture between Stocks and Bonds. But with all the tables covered above, this one requires no explanation. This is how we can reuse most of our CSS here as well.
+
+The key here is a column called *is_sip_ongoing,* which is used to split the tables into two, with slightly different structures.
+:::
+
+#### SIPs
+
+::: {style="text-align: justify;"}
+For SIPs, we have a simple reminder for each row which tells the date for the installment and the amount.
+:::
+
+```{r "funds_sip"}
+
+sips <- data$funds_data |>
+  mutate(
+    left = paste(
+      provider,
+      name,
+      total_invested,
+      unit_balance,
+      sep = "_"
+    ),
+    right = paste(
+      current_value,
+      profit,
+      change_percent,
+      sep = "_"
+    )
+  ) |>
+  select(
+    c(
+      left,
+      right,
+      is_sip_ongoing,
+      sip_date,
+      sip_amount
+    )
+  ) |>
+  filter(is_sip_ongoing == 1) |>
+  mutate(
+    left = paste(
+      left,
+      sip_date,
+      sip_amount,
+      sep = "_"
+    )
+  ) |>
+  select(
+    -c(
+      is_sip_ongoing,
+      sip_date,
+      sip_amount
+    )
+  )
+
+reactable(
+  sips,
+  searchable = TRUE,
+  columns = list(
+    left = colDef(
+      name = "Invested",
+      align = "left",
+      cell = function(string) {
+        string <- strsplit(string, "_")[[1]]
+
+        div(
+          class = "sip-table",
+          div(
+            class = "fund-holding-container stock-left-area",
+            div(
+              class = "stock-name-row",
+              div(
+                class = "stock-code",
+                string[1]
+              ),
+              div(
+                class = "stock-name",
+                string[2]
+              )
+            ),
+            div(
+              class = "stock-holding-row",
+              div(
+                class = "fund-invested small-row-left",
+                title = "Invested Value",
+                icon(name = "vault", class = "label"),
+                p(class = "value", format_price(string[3], 2))
+              ),
+              div(
+                class = "fund-units small-row-left",
+                title = "Total Units",
+                icon(name = "hashtag", class = "label"),
+                p(class = "value", true_round(string[4], 2))
+              )
+            ),
+            p(
+              class = "fund-sip-information",
+              glue("${format_price(string[6], 0)} on the {string[5]}th")
+            )
+          )
+        )
+      }
+    ),
+    right = colDef(
+      name = "Current",
+      align = "right",
+      cell = function(string) {
+        string <- strsplit(string, "_")[[1]]
+        price_class <- get_css_class(string[2], type = "text")
+
+        div(
+          class = "sip-table stock-right-area",
+          div(
+            class = "fund-current small-row-right",
+            icon(
+              name = "money-bill-transfer",
+              title = "Current Value",
+              class = paste("stock-current-price label",
+                price_class,
+                sep = " "
+              )
+            ),
+            p(
+              format_price(string[1]),
+              title = "Change %",
+              class = paste("stock-current-price value",
+                price_class,
+                sep = " "
+              )
+            )
+          ),
+          div(
+            class = "fund-profit small-row-right",
+            icon(
+              name = "comment-dollar",
+              class = paste("stock-current-price label",
+                price_class,
+                sep = " "
+              )
+            ),
+            p(
+              glue("{string[3]}%"),
+              class = paste("stock-current-price value",
+                price_class,
+                sep = " "
+              )
+            )
+          )
+        )
+      }
+    )
+  )
+)
+```
+
+#### Lumpsum
+
+::: {style="text-align: justify;"}
+The Lumpsum funds look very, very similar to the stocks interface and this is by design.
+:::
+
+```{r "funds_lumpsum"}
+
+funds <- data$funds_data |>
+  mutate(
+    left = paste(
+      provider,
+      name,
+      total_invested,
+      unit_balance,
+      sep = "_"
+    ),
+    right = paste(
+      current_value,
+      profit,
+      change_percent,
+      sep = "_"
+    )
+  ) |>
+  filter(is_sip_ongoing != 1) |>
+  select(
+    c(
+      left,
+      right
+    )
+  )
+
+reactable(
+  funds,
+  searchable = TRUE,
+  columns = list(
+    left = colDef(
+      name = "Invested",
+      align = "left",
+      cell = function(string) {
+        string <- strsplit(string, "_")[[1]]
+  
+        div(
+          class = "sip-table",
+          div(
+            class = "fund-holding-container stock-left-area",
+            div(
+              class = "stock-name-row",
+              div(
+                class = "stock-code",
+                string[1]
+              ),
+              div(
+                class = "stock-name",
+                string[2]
+              )
+            ),
+            div(
+              class = "stock-holding-row",
+              div(
+                class = "fund-invested small-row-left",
+                title = "Invested Value",
+                icon(name = "vault", class = "label"),
+                p(class = "value", format_price(string[3], 2))
+              ),
+              div(
+                class = "fund-units small-row-left",
+                title = "Total Units",
+                icon(name = "hashtag", class = "label"),
+                p(class = "value", true_round(string[4], 2))
+              )
+            )
+          )
+        )
+      }
+    ),
+    right = colDef(
+      name = "Current",
+      align = "right",
+      cell = function(string) {
+        string <- strsplit(string, "_")[[1]]
+        price_class <- get_css_class(string[2], type = "text")
+  
+        div(
+          class = "sip-table stock-right-area",
+          div(
+            class = "fund-current small-row-right",
+            icon(
+              name = "money-bill-transfer",
+              title = "Current Value",
+              class = paste("stock-current-price label",
+                price_class,
+                sep = " "
+              )
+            ),
+            p(
+              format_price(string[1]),
+              title = "Change %",
+              class = paste("stock-current-price value",
+                price_class,
+                sep = " "
+              )
+            )
+          ),
+          div(
+            class = "fund-profit small-row-right",
+            icon(
+              name = "comment-dollar",
+              class = paste("stock-current-price label",
+                price_class,
+                sep = " "
+              )
+            ),
+            p(
+              glue("{string[3]}%"),
+              class = paste("stock-current-price value",
+                price_class,
+                sep = " "
+              )
+            )
+          )
+        )
+      }
     )
   )
 )

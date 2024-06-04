@@ -1,12 +1,9 @@
-"name","id","is_sip_ongoing","sip_amount","sip_date","total_invested","unit_balance","provider","fund_code","current_price","change","change_percent","current_value","profit"
-"Blue Chip Fund",1,0,0,0,340000,8530.6,"SBI","SBI_BLUE_DIR_W61N1G",89.1,0.06,123.55,760076,420076
-"Dynamic Bond Fund",3,0,0,0,125000,4384.207,"SBI","SBI_DYNA_BOND_1Y6G9CN",34.95,-0.02,22.58,153228,28228
-"Dynamic Bond Fund",3,0,0,0,125000,4384.207,"Kotak","KOTA_DYNA_BOND_VTTPOL",36.48,0.02,27.95,159936,34936
-"Dynamic Bond Fund",4,0,0,0,125000,4211.777,"SBI","SBI_DYNA_BOND_1Y6G9CN",34.95,-0.02,17.76,147202,22202
-"Dynamic Bond Fund",4,0,0,0,125000,4211.777,"Kotak","KOTA_DYNA_BOND_VTTPOL",36.48,0.02,22.92,153646,28646
-"Large & Midcap Fund (Emerging)",7,1,2500,20,319985.6,3963.715,"Mirae","MIRA_ASSE_LARG_EEV7WG",149.2,0.13,84.82,591386,271400
-"Large Cap Fund",6,1,7500,15,369984.6,5233.95,"Mirae","MIRA_ASSE_LARG_1GOLJOG",109.97,-0.21,55.57,575577,205592
-"Nifty Index Fund",8,0,0,0,280000,1514.79,"SBI","SBI_NIFT_INDE_1U4UMFS",206.23,-0.35,11.57,312395,32395
-"NYSE FANG+ ETF Fund",5,0,0,0,64996.75,6509.086,"Mirae","MIRA_ASSE_NYSE_MHAG2E",20.05,-0.24,100.79,130507,65510
-"Small Cap Fund",9,1,20000,13,100000,621.93,"SBI","SBI_SMAL_CAP_MY8974",160.27,0.33,-0.32,99677,-323
-"Tax Saver Fund",2,0,0,0,180000,3779.917,"DSP","DSP_ELSS_TAX_F8PE7V",130.74,0.42,174.55,494186,314186
+name,id,is_sip_ongoing,sip_amount,sip_date,total_invested,unit_balance,provider,current_price,change,change_percent,current_value,profit
+Blue Chip Fund,1,0,0,0,340000,8530.6,Provider1,89.1,0.06,123.55,760076,420076
+Dynamic Bond Fund,4,0,0,0,125000,4211.777,Provider1,34.95,-0.02,17.76,147202,22202
+Large & Midcap Fund,7,1,2500,20,319985.6,3963.715,Provider3,149.2,0.13,84.82,591386,271400
+Large Cap Fund,6,1,7500,15,369984.6,5233.95,Provider3,109.97,-0.21,55.57,575577,205592
+Index Fund,8,0,0,0,280000,1514.79,Provider1,206.23,-0.35,11.57,312395,32395
+Foreign Fund,5,0,0,0,64996.75,6509.086,Provider3,20.05,-0.24,100.79,130507,65510
+Small Cap Fund,9,1,20000,13,100000,621.93,Provider1,160.27,0.33,-0.32,99677,-323
+Tax Saver Fund,2,0,0,0,180000,3779.917,Provider2,130.74,0.42,174.55,494186,314186
