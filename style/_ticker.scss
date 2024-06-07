@@ -1,3 +1,4 @@
+@import "breakpoints";
 @import "colors";
 
 .ticker-info {
@@ -36,16 +37,25 @@
   display: grid;
   grid-template-rows: 1fr;
   gap: 15px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   justify-items: end;
   margin-bottom: 10px;
 
+  @media screen and (min-width: 1023px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
   .stock-change-block {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     justify-items: end;
     align-items: center;
+
+    @media screen and (min-width: 1023px) {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .stock-percent {
